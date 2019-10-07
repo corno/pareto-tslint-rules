@@ -1,0 +1,25 @@
+{
+  "name": "mymodule",
+  "version": "0.0.1",
+  "description": "whatever",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "corno",
+  "license": "ISC",
+  "types": "dist/index.d.ts",
+  "prepublish": "tsc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corno/mymodule.sgit"
+  },
+  "dependencies": {
+    "@types/node": "^12.7.11",
+    "steroid-writer": "0.0.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3",
+    "yarn": "^1.19.0"
+  }
+}
