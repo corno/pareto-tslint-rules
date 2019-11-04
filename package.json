@@ -13,7 +13,7 @@
   "prepublish": "tsc",
   "repository": {
     "type": "git",
-    "url": "https://github.com/corno/mymodule.sgit"
+    "url": "https://github.com/corno/mymodule.git"
   },
   "dependencies": {
     "@types/node": "^12.7.11",

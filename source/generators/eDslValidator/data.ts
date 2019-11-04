@@ -4,7 +4,7 @@ import * as generator from "./generator"
 const data: generator.Data = {
     SourceFile: [
         ["req",
-            "SyntaxList"
+            "SyntaxList",
         ],
     ],
     SyntaxList: [
