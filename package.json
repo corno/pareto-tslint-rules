@@ -1,6 +1,6 @@
 {
   "name": "tslint-pareto-rules",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "tslint rules to enforce the pareto style of coding",
   "main": "dist/index.js",
   "scripts": {
