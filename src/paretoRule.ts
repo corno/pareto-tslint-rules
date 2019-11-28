@@ -44,15 +44,18 @@ type Expression = PossiblyUnsupported<
     | ["Identifier", {
         value: string
     }]
-    | ["PropertyAccessExpression", {
-        name: string,
-        expression: Possible<Expression>
-    }]
+    | ["ObjectLiteralExpression", STUB]
+    | ["NoSubstitutionTemplateLiteral", STUB]
     | ["NullKeyword", {
     }]
     | ["NewExpression", {
     }]
+    | ["PropertyAccessExpression", {
+        name: string,
+        expression: Possible<Expression>
+    }]
     | ["This", {}]
+    | ["TemplateExpression", STUB]
 >
 
 type Statement = PossiblyUnsupported<
@@ -309,7 +312,7 @@ class AllWalker extends Lint.AbstractWalker<Set<string>> {
                 }
             }),
         }
-        resultSourceFile.statements.forEach(() => {})
+        resultSourceFile.statements.forEach(() => { })
 
         //console.log(JSON.stringify(resultSourceFile, undefined, " "))
 
@@ -413,6 +416,12 @@ class AllWalker extends Lint.AbstractWalker<Set<string>> {
             case "NewExpression": {
                 return ["NewExpression", stub]
             }
+            case "ObjectLiteralExpression": {
+                return ["ObjectLiteralExpression", stub]
+            }
+            case "NoSubstitutionTemplateLiteral": {
+                return ["NoSubstitutionTemplateLiteral", stub]
+            }
             case "NullKeyword": {
                 return ["NullKeyword", {
                 }]
@@ -422,6 +431,9 @@ class AllWalker extends Lint.AbstractWalker<Set<string>> {
                 return ["StringLiteral", {
                     value: stringLiteral.text,
                 }]
+            }
+            case "TemplateExpression": {
+                return ["TemplateExpression", stub]
             }
             case "ThisKeyword": {
                 return ["This", {

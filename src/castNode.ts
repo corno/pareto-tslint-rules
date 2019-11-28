@@ -1,6 +1,25 @@
 import * as ts from "typescript"
 import * as gcn from "./generatedCastNode"
 
+
+let kindCache: { [key: number]: string }
+
+function getKindCache() {
+    if (kindCache !== undefined) {
+        return kindCache
+    }
+    kindCache = {}
+
+    // some SyntaxKinds are repeated, so only use the first one
+    for (const name of Object.keys(ts.SyntaxKind)) {
+        const value = (ts.SyntaxKind as any)[name] as number
+        if (kindCache[value] === undefined) {
+            kindCache[value] = name
+        }
+    }
+    return kindCache
+}
+
 export type TypedNode =
     | gcn.GeneratedTypedNode
 
@@ -10,6 +29,11 @@ export type TypedNode =
 
 
 export function castNode(node: ts.Node): TypedNode {
+    const cache = getKindCache()
+    const sk = cache[node.kind]
+    if (sk === undefined) {
+        throw new Error("XXXX")
+    }
     switch (node.kind) {
         case ts.SyntaxKind.Constructor: return ["Constructor", node as ts.ConstructorDeclaration]
         case ts.SyntaxKind.NullKeyword: return ["NullKeyword", node as ts.NullLiteral]
@@ -50,7 +74,7 @@ export function castToExpression(node: ts.Node): null | ts.Expression {
         case "VoidExpression": return castResult[1]
         case "AwaitExpression": return castResult[1]
         case "YieldExpression": return castResult[1]
-        case "SyntheticExpression": return castResult[1]
+        //case "SyntheticExpression": return castResult[1]
         case "BinaryExpression": return castResult[1]
         // case "AssignmentExpression<TOperator": return castResult[1]
         // case "ObjectDestructuringAssignment": return castResult[1]
@@ -62,7 +86,7 @@ export function castToExpression(node: ts.Node): null | ts.Expression {
         case "RegularExpressionLiteral": return castResult[1]
         case "NoSubstitutionTemplateLiteral": return castResult[1]
         case "NumericLiteral": return castResult[1]
-        case "BigIntLiteral": return castResult[1]
+        //case "BigIntLiteral": return castResult[1]
         case "TemplateExpression": return castResult[1]
         case "ParenthesizedExpression": return castResult[1]
         case "ArrayLiteralExpression": return castResult[1]

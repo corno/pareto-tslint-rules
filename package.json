@@ -1,7 +1,7 @@
 {
-  "name": "mymodule",
+  "name": "tslint-pareto-rules",
   "version": "0.0.1",
-  "description": "whatever",
+  "description": "tslint rules to enforce the pareto style of coding",
   "main": "dist/index.js",
   "scripts": {
     "build": "rd /s /q .\\dist && tsc",
@@ -9,7 +9,7 @@
     "pubMin": "git diff --exit-code && ncu -u --packageFile package.json && npm install && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version minor && git push && npm publish",
     "pubPatch": "git diff --exit-code && ncu -u --packageFile package.json && npm install && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version patch && git push && npm publish",
     "test": "cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
-    "u2l": "ncu -u --packageFile package.json && nsi",
+    "u2l": "echo 'don't update to latest, A specific version of typescript is needed for tslint'",
     "coverage": "nyc npm run test",
     "test-lint-pareto-rule": "tslint --test ./test/rules/pareto"
   },
@@ -20,14 +20,14 @@
   "prepublish": "tsc",
   "repository": {
     "type": "git",
-    "url": "https://github.com/corno/mymodule.git"
+    "url": "https://github.com/corno/tslint-pareto-rules.git"
   },
   "dependencies": {
     "@types/node": "^12.12.14",
     "fountain-pen": "^1.0.1",
     "steroid-writer": "0.1.3",
     "tslint": "^5.20.1",
-    "typescript": "^3.0.0-dev.20180605",
+    "typescript": "^3.7.2",
     "yarn": "^1.19.2"
   }
 }

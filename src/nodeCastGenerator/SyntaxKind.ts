@@ -333,5 +333,5 @@ export const syntaxKind = [
     ["FirstJSDocNode", 278],
     ["LastJSDocNode", 298],
     ["FirstJSDocTagNode", 289],
-    ["LastJSDocTagNode", 298]
+    ["LastJSDocTagNode", 298],
 ]
