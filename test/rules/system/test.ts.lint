@@ -1,15 +1,10 @@
 import * as fs from "fs"
+~~~~~~~~~~~~~~~~~~~~~~~~  [missing ImportClause, found 93]
+       ~~~~~~~            [unexpected: ]
+const octopus = 5
+~~~~~~~~~~~~~~~~~  [unexpected: ]
 
-const octopus = 5;
-      ~~~~~~~     [no-animal]
+let giraffe: number, tiger: number
 
-let giraffe: number, tiger: number;
-    ~~~~~~~                 [no-animal]
-                     ~~~~~  [no-animal]
-
-const tree = 5;
-      ~~~~      [no-plant]
-const skyscraper = 100;
-
-[no-animal]: Variables named after animals are not allowed!
-[no-plant]: Variables named after plants are not allowed!
+const tree = 5
+const skyscraper = 100

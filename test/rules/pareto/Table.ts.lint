@@ -1,0 +1,266 @@
+import {
+    assertNotNull,
+    assertUnreachable,
+    create,
+    error,
+    FilterResult,
+    IKeyValueStream,
+    ISafePromise,
+    IStream,
+    IUnsafePromise,
+    onBoolean,
+    onNullableValue,
+    result,
+    SafeMutableDictionary,
+    success,
+    UnsafeMutableDictionary,
+    wrap
+} from "pareto"
+import {
+    StaticStream,
+} from "pareto-20"
+import * as RDBMS from "steroid-rdbms-api"
+import { FieldDefinitionContext } from "./FieldDefintion"
+import { RowContext } from "./Row"
+import * as DBTypes from "./types"
+import * as Utils from "./utils"
+
+export type FieldCreationData = {
+    table: TableContext
+    type: RDBMS.FieldType
+}
+
+export class TablesDictionary extends UnsafeMutableDictionary<TableContext, null | RDBMS.IStreamedTable<null>, TableContext, RDBMS.RootError> { }
+
+export class FieldDefinitionDictionary extends SafeMutableDictionary<FieldDefinitionContext, FieldCreationData, FieldDefinitionContext> { }
+
+export class TableContext {
+    public readonly rowsRaw: Array<RDBMS.FieldValue[] | null>
+    public readonly fieldDefinitions: FieldDefinitionDictionary
+    private readonly tableName: string
+    constructor(
+        tableName: string
+    ) {
+        this.tableName = tableName
+        this.rowsRaw = []
+        this.fieldDefinitions = new FieldDefinitionDictionary(
+            creationData => success(new FieldDefinitionContext(creationData.type, creationData.table)),
+            fd => fd, //opener
+            fd => fd.copy(), //copier
+            _fd => { } //deleter
+        )
+    }
+    public getFieldDefinition(fieldName: string) {
+        return this.fieldDefinitions.getEntry(fieldName).mapErrorRaw<RDBMS.DatabaseError>(() => ["field does not exist", { tableName: this.tableName, fieldName: fieldName }])
+    }
+
+    public getRow(rowID: number): IUnsafePromise<RowContext, RDBMS.RowTreeError> {
+        return create.Promise.unsafe.from.Array(this.rowsRaw).getElementAt(rowID, () => null
+        ).mapErrorRaw<RDBMS.RowTreeError>(_error =>
+            ["row does not exist", { tableName: this.tableName, rowIndex: rowID }]
+        ).try(rowOrNull => {
+            return assertNotNull(
+                rowOrNull,
+                () => ["row does not exist", { tableName: this.tableName, rowIndex: rowID }],
+                row => new RowContext(row, this)
+            )
+        })
+    }
+    public getRow2(rowID: number): IUnsafePromise<RowContext, RDBMS.DatabaseError> {
+        return create.Promise.unsafe.from.Array(this.rowsRaw).getElementAt(rowID, () => null
+        ).mapErrorRaw<RDBMS.DatabaseError>(_error =>
+            ["row does not exist", { tableName: this.tableName, rowIndex: rowID }]
+        ).try(rowOrNull => {
+            return assertNotNull(
+                rowOrNull,
+                () => ["row does not exist", { tableName: this.tableName, rowIndex: rowID }],
+                row => new RowContext(row, this)
+            )
+        })
+    }
+
+    public prepareFilters(query: RDBMS.IQuery): IUnsafePromise<Utils.PreparedFilters, RDBMS.DatabaseError> {
+        return create.Promise.unsafe.from.KeyValueStream(query.filters
+        ).match<FieldDefinitionContext, IKeyValueStream<RDBMS.Filter>>(null, this.fieldDefinitions, errors => errors
+        ).mapErrorRaw<RDBMS.DatabaseError>(matchErrors =>
+            ["fields do not exist", { tableName: query.tableName, fieldNames: matchErrors.toKeysStream() }]
+        ).try<Utils.PreparedFilters>(matched => {
+            return matched.tryAll<Utils.PreparedFilter, RDBMS.FilterError, RDBMS.DatabaseError>(
+                null,
+                (field, fieldName) => {
+                    switch (field.main[0]) {
+                        case "in": {
+                            switch (field.support.type[0]) {
+                                case "number": {
+
+                                    return error(["incompatible in filter", { tableName: query.tableName, fieldName: fieldName }])
+                                }
+                                case "string": {
+
+                                    return success<Utils.PreparedFilter, RDBMS.FilterError>({
+                                        filter: field.main,
+                                        index: field.support.index,
+                                    })
+                                }
+                                default:
+                                    assertUnreachable(field.support.type[0])
+                                    throw new Error("UNREACHABLE")
+                            }
+                        }
+                        case "range": {
+                            switch (field.support.type[0]) {
+                                case "number": {
+                                    return success<Utils.PreparedFilter, RDBMS.FilterError>({
+                                        filter: field.main,
+                                        index: field.support.index,
+                                    })
+                                }
+                                case "string": {
+                                    return error(["incompatible range filter", { tableName: query.tableName, fieldName: fieldName }])
+                                }
+                                default:
+                                    assertUnreachable(field.support.type[0])
+                                    throw new Error("UNREACHABLE")
+                            }
+                        }
+                        case "regex": {
+                            switch (field.support.type[0]) {
+                                case "number": {
+                                    return error(["incompatible regular expression filter", { tableName: query.tableName, fieldName: fieldName }])
+                                }
+                                case "string": {
+                                    return success<Utils.PreparedFilter, RDBMS.FilterError>({
+                                        filter: field.main,
+                                        index: field.support.index,
+                                    })
+                                }
+                                default:
+                                    assertUnreachable(field.support.type[0])
+                                    throw new Error("UNREACHABLE")
+                            }
+                        }
+                        default:
+                            assertUnreachable(field.main[0])
+                            throw new Error("UNREACHABLE")
+                    }
+                },
+                (_aborted, filterErrors) => result(["invalid filters", { tableName: query.tableName, filters: filterErrors }])
+            )
+        })
+    }
+
+    public getFilteredRowStream(filters: Utils.PreparedFilters): IStream<{
+        row: RowContext;
+        index: number;
+    }> {
+        const newRows = this.rowsRaw.map((row, index) => {
+            return {
+                row: row,
+                index: index,
+            }
+        })
+        return new StaticStream(newRows).filter<{ row: RowContext, index: number }>(data => {
+            return onNullableValue<RDBMS.FieldValue[], ISafePromise<FilterResult<{ row: RowContext, index: number }>>>(
+                data.row,
+                () => result([false]),
+                rawRow => {
+                    const row = new RowContext(rawRow, this)
+                    return Utils.doesRowMatchFilters(row, filters).mapResult(match =>
+                        result(onBoolean<FilterResult<{ row: RowContext, index: number }>>(
+                            match,
+                            () => [false],
+                            () => [true, {
+                                row: row,
+                                index: data.index,
+                            }]
+                        ))
+                    )
+                }
+            )
+        })
+    }
+
+    public assertFieldDoesNotExist(fieldName: string) {
+        return this.fieldDefinitions.getEntry(fieldName
+        ).invert(
+        ).mapErrorRaw<RDBMS.DatabaseError>(_field =>
+            ["field already exists", { tableName: this.tableName, fieldName: fieldName }],
+        )
+    }
+
+    public getUniqueIndex(): number {
+        return this.fieldDefinitions.reduceRaw(0, (previousFirstFree, fd) => {
+            return Math.max(previousFirstFree, fd.index + 1)
+        })
+    }
+
+    public load(tableStream: RDBMS.IStreamedTable<null>): IUnsafePromise<TableContext, RDBMS.RootError> {
+        return wrap.KeyValueStream(tableStream.columns, [ "abort" ]//).assertNoDuplicates(null, (_aborted, columns) => columns
+            //).mapErrorRaw<RDBMS.RootError>(conflictingColumns =>
+            // Utils.logError(conflictingColumns, ["column name conflicts", { tableName: this.tableName, columnNames: conflictingColumns.toKeysStream() }])
+        ).tryAll(
+            null,
+            (column, columnName) => {
+                const columnType = column.type
+                switch (columnType[0]) {
+                    case "number":
+                        return this.fieldDefinitions.createEntry(columnName, {
+                            table: this,
+                            type: ["number", {}],
+                        })
+                    case "string":
+                        return this.fieldDefinitions.createEntry(columnName, {
+                            type: ["string", {}],
+                            table: this,
+                        })
+                    default: {
+                        assertUnreachable(columnType[0])
+                        throw new Error("Unreachable")
+                    }
+                }
+            },
+            (_aborted, errors) => result(errors)
+        ).mapErrorRaw<RDBMS.RootError>(conflictingColumns =>
+            Utils.logError(conflictingColumns, ["column name conflicts", { tableName: this.tableName, columnNames: conflictingColumns.toKeysStream() }])
+        ).try(() =>
+            wrap.UnsafePromise(tableStream.rows
+            ).mapErrorRaw<RDBMS.RootError>(_error =>
+                ["unknown error", { databaseName: "X" }]
+            ).try(streamOfRows => {
+                return create.Promise.unsafe.from.Stream(streamOfRows).tryAll<null, number, RDBMS.RootError>(
+                    null,
+                    data => {
+                        const row: DBTypes.RowImplementation = []
+                        this.fieldDefinitions.match(
+                            data.fields,
+                            (main, support, _name) => ({
+                                index: main.index,
+                                value: support,
+                            }),
+                            errors => errors
+                        ).handleUnsafePromise(
+                            missingFields =>
+                                missingFields.forEach(field => {
+                                    //const value = fields.
+                                    row[field.index] = null
+                                }),
+                            fields => {
+                                fields.forEach(field => {
+                                    //const value = fields.
+                                    row[field.index] = field.value
+                                })
+                                return null
+                            }
+                        )
+                        this.rowsRaw.push(row)
+                        return success<null, number>(null)
+                    },
+                    (_aborted, errors) => ["could not load row(s)", { databaseName: "X", tableName: "Y", rowIndices: errors }]
+                ).mapResult<TableContext>(_rowStream => {
+                    return result(this)
+                })
+            })
+        )
+    }
+
+}

@@ -4,7 +4,15 @@
   "description": "whatever",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rd /s /q .\\dist && tsc",
+    "lint": "tslint --project tsconfig.json",
+    "pubMin": "git diff --exit-code && ncu -u --packageFile package.json && npm install && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version minor && git push && npm publish",
+    "pubPatch": "git diff --exit-code && ncu -u --packageFile package.json && npm install && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version patch && git push && npm publish",
+    "test": "cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
+    "u2l": "ncu -u --packageFile package.json && nsi",
+    "coverage": "nyc npm run test",
+    "test-lint-system-rule": "tslint --test ./test/rules/system",
+    "test-lint-pareto-rule": "tslint --test ./test/rules/pareto"
   },
   "keywords": [],
   "author": "corno",
@@ -17,8 +25,10 @@
   },
   "dependencies": {
     "@types/node": "^12.7.11",
+    "fountain-pen": "^1.0.0",
     "steroid-writer": "0.0.1",
     "tslint": "^5.20.0",
+    "tsutils": "^3.17.1",
     "typescript": "^3.6.3",
     "yarn": "^1.19.0"
   }
