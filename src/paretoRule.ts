@@ -309,6 +309,7 @@ class AllWalker extends Lint.AbstractWalker<Set<string>> {
                 }
             }),
         }
+        resultSourceFile.statements.forEach(() => {})
 
         //console.log(JSON.stringify(resultSourceFile, undefined, " "))
 

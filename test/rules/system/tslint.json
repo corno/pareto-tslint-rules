@@ -1,8 +1,0 @@
-{
-    "rulesDirectory": [
-        "../../../tslintRules"
-    ],
-    "rules": {
-      "system": true
-    }
-  }

@@ -11,7 +11,6 @@
     "test": "cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/**/*.ts",
     "u2l": "ncu -u --packageFile package.json && nsi",
     "coverage": "nyc npm run test",
-    "test-lint-system-rule": "tslint --test ./test/rules/system",
     "test-lint-pareto-rule": "tslint --test ./test/rules/pareto"
   },
   "keywords": [],
@@ -25,11 +24,10 @@
   },
   "dependencies": {
     "@types/node": "^12.12.14",
-    "fountain-pen": "^1.0.0",
+    "fountain-pen": "^1.0.1",
     "steroid-writer": "0.1.3",
     "tslint": "^5.20.1",
-    "tsutils": "^3.17.1",
-    "typescript": "^3.7.2",
+    "typescript": "^3.0.0-dev.20180605",
     "yarn": "^1.19.2"
   }
 }

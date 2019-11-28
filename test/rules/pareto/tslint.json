@@ -1,6 +1,6 @@
 {
     "rulesDirectory": [
-        "../../../dist/src/rules"
+        "../../../dist/src"
     ],
     "rules": {
       "pareto": true

@@ -2,6 +2,7 @@
 import { RootBuilder } from "../../src/builder"
 
 export function createRoot(rb: RootBuilder) {
+    throw new Error("SDFS")
     return rb.build(
         "Root",
         ct => ct
