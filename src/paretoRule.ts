@@ -3,7 +3,7 @@
 import * as Lint from "tslint"
 //import * as utils from "tsutils"
 import * as ts from "typescript"
-import { castNode, isExpression } from "../castNode"
+import { castNode, isExpression } from "./castNode"
 
 
 class STUB {

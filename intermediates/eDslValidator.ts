@@ -1,7 +1,7 @@
 /* tslint:disable: variable-name no-empty max-line-length no-namespace object-literal-sort-keys no-string-literal */
 import * as Lint from "tslint"
 import * as ts from "typescript"
-import * as skl from "../src/syntaxKindLookup"
+import * as skl from "../src/_archive/syntaxKindLookup"
 export class Rule extends Lint.Rules.AbstractRule {
     public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
         return this.applyWithWalker(new EDslValidator(sourceFile, this.ruleName, new Set(this.ruleArguments.map(String))))
