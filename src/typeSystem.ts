@@ -150,7 +150,7 @@ export type StringLiteral = {
 }
 
 export type Block = {
-    statements: Iterable<Statement>
+    statements: Array<Statement>
 }
 
 export type Parameter = {
