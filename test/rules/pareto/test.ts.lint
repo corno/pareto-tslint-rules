@@ -2,6 +2,10 @@
 import { RootBuilder } from "../../src/builder"
 
 export function createRoot(rb: RootBuilder) {
+    const bla: string = "FOO"
+    print(`foo ${true} bar`)
+    ~~~~~~~~~~~~~~~~~~~~~~~~  [expression statements should not be used]
+                 ~~~~         [unsupported expression kind: TrueKeyword]
     throw new Error("SDFS")
-    ~~~~~~~~~~~~~~~~~~~~~~~  [unsupported statement type: ThrowStatement]
+    ~~~~~~~~~~~~~~~~~~~~~~~  [unsupported statement kind: ThrowStatement]
 }
