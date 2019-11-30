@@ -6,8 +6,8 @@
   "scripts": {
     "build": "rd /s /q .\\dist && tsc",
     "lint": "tslint --project tsconfig.json",
-    "pubMin": "git diff --exit-code && npm install && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version minor && git push && npm publish",
-    "pubPatch": "git diff --exit-code && npm install && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version patch && git push && npm publish",
+    "pubMin": "git diff --exit-code && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version minor && git push && npm publish",
+    "pubPatch": "git diff --exit-code && rd /s /q .\\dist && tsc && npm run lint && npm run test && npm version patch && git push && npm publish",
     "test": "tslint --test ./test/rules/pareto",
     "u2l": "echo 'don't update to latest, A specific version of typescript is needed for tslint'"
   },
