@@ -1,41 +1,9 @@
-
-class STUB {
-    public readonly stub = "stub"
-}
-export const stub = new STUB()
-
-// class Missing {
-//     public readonly missing = "missing"
-// }
-// const missing = new Missing()
-
-// class Optional {
-//     public readonly optional = "optional"
-// }
-// const optional = new Optional()
-
-
-export type Optional<T> = ["not set"] | ["set", T]
-export function notSet<T>(): Optional<T> {
-    return ["not set"]
-}
-export function set<T>(t: T): Optional<T> {
-    return ["set", t]
-}
-
-export type PossiblyMissing<T> = ["missing"] | ["present", T]
-export function present<T>(t: T): PossiblyMissing<T> {
-    return ["present", t]
-}
-
-export type PossiblyUnsupported<T> = ["unsupported"] | ["supported", T]
-export function supported<T>(t: T): PossiblyUnsupported<T> {
-    return ["supported", t]
-}
-
-/////////////
-
-export type TypeArgument = STUB
+import {
+    Optional,
+    PossiblyMissing,
+    PossiblyUnsupported,
+    STUB
+} from "./states"
 
 export type ArrowFunctionBodyKind =
     | ["Expression", {
@@ -55,6 +23,27 @@ export type ObjectLiteralPropertyType =
         initializer: Expression
     }]
 
+export type TypeNodeKind =
+    | ["ArrayType", {
+        elementType: TypeNode
+    }]
+    // | ["TypeLiteral", {
+    //     members: Array<STUB>
+    // }]
+    | ["FunctionType", STUB]
+    | ["NumberKeyword", {}]
+    | ["NullKeyword", {}]
+    | ["StringKeyword", {}]
+    | ["TupleType", STUB]
+    | ["TypeReference", STUB]
+    | ["UnionType", {
+        types: Array<TypeNode>
+    }]
+
+export type TypeNode = {
+    kind: PossiblyUnsupported<TypeNodeKind>
+}
+
 export type ExpressionKind =
     | ["ArrayLiteralExpression", {
         elements: Array<Expression>
@@ -62,17 +51,15 @@ export type ExpressionKind =
     | ["ArrowFunction", {
         body: ArrowFunctionBody
     }]
-    | ["StringLiteral", {
-        text: string
-    }]
     | ["CallExpression", {
         expression: Expression
-        typeArguments: Optional<Array<TypeArgument>>
+        typeArguments: Optional<Array<TypeNode>>
         arguments: Array<Expression>
     }]
     | ["Identifier", {
         text: string
     }]
+    | ["ElementAccessExpression", STUB]
     | ["ObjectLiteralExpression", {
         properties: Array<{
             kind: PossiblyUnsupported<ObjectLiteralPropertyType>
@@ -92,6 +79,7 @@ export type ExpressionKind =
         name: string,
         expression: Expression
     }]
+    | ["StringLiteral", StringLiteral]
     | ["This", {}]
     | ["TemplateExpression", {
         head: string,
@@ -118,19 +106,19 @@ export type Clause = {
     kind: ClauseKind
 }
 
-export type Type = STUB
-
 export type Statement = {
     kind: PossiblyUnsupported<StatementKind>
 }
 
 export type VariableStatementDeclaration = {
     name: BindingName
-    type: Optional<Type>
+    type: Optional<TypeNode>
     initializer: PossiblyMissing<Expression>
 }
 
 export type StatementKind =
+    | ["BreakStatement", {
+    }]
     | ["ExpressionStatement", {
         expression: Expression
     }]
@@ -157,16 +145,17 @@ export type BindingName = {
 export type Identifier = {
     text: string
 }
+export type StringLiteral = {
+    text: string
+}
 
 export type Block = {
     statements: Iterable<Statement>
 }
 
-export type ParameterType = STUB
-
 export type Parameter = {
     name: BindingName
-    type: PossiblyMissing<ParameterType>
+    type: PossiblyMissing<TypeNode>
 }
 
 export type FunctionDeclaration = {
@@ -176,9 +165,24 @@ export type FunctionDeclaration = {
 }
 
 export type MethodDeclaration = {
-    name: PossiblyMissing<PropertyName>
+    name: PropertyName
     parameters: Array<Parameter>
     body: PossiblyMissing<Block>
+}
+
+export type ConstructorStatementKind = STUB
+
+export type ConstructorStatement = {
+    kind: PossiblyUnsupported<ConstructorStatementKind>
+}
+
+export type ConstructorBlock = {
+    statements: Iterable<ConstructorStatement>
+}
+
+export type ConstructorDeclaration = {
+    parameters: Array<Parameter>
+    body: PossiblyMissing<ConstructorBlock>
 }
 
 export type PropertyName = {
@@ -187,14 +191,35 @@ export type PropertyName = {
 
 export type PropertyNameKind =
     | ["Identifier", Identifier]
+    | ["StringLiteral", StringLiteral]
 
 export type ClassMemberKind =
-    | ["Constructor", STUB]
+    | ["Constructor", ConstructorDeclaration]
     | ["MethodDeclaration", MethodDeclaration]
-    | ["PropertyDeclaration", STUB]
+    | ["PropertyDeclaration", {
+        name: PropertyName,
+        type: Optional<TypeNode>,
+        initializer: Optional<Expression>
+    }]
 
 export type ClassMember = {
     kind: PossiblyUnsupported<ClassMemberKind>
+}
+
+export type TypeParameterDeclarationKind = STUB
+
+export type TypeParameterDeclaration = {
+    kind: PossiblyUnsupported<TypeParameterDeclarationKind>
+}
+
+export type InterfaceDeclarationMemberKind = STUB
+
+export type InterfaceDeclarationMember = {
+    kind: PossiblyUnsupported<InterfaceDeclarationMemberKind>
+}
+
+export type InterfaceDeclaration = {
+    members: Array<InterfaceDeclarationMember>
 }
 
 export type RootStatementKind =
@@ -202,9 +227,19 @@ export type RootStatementKind =
         "name": PossiblyMissing<Identifier>
         "members": Array<ClassMember>
     }]
-    | ["ImportDeclaration", STUB]
+    | ["ImportDeclaration", {
+        importClause: Optional<{
+            name: Optional<Identifier>,
+            namedBindings: Optional<STUB>
+        }>,
+        moduleSpecifier: StringLiteral
+    }]
     | ["FunctionDeclaration", FunctionDeclaration]
-    | ["TypeAliasDeclaration", STUB]
+    | ["InterfaceDeclaration", InterfaceDeclaration]
+    | ["TypeAliasDeclaration", {
+        typeParameters: Optional<Array<TypeParameterDeclaration>>,
+        type: TypeNode
+    }]
 
 export type RootStatement = {
     kind: PossiblyUnsupported<RootStatementKind>

@@ -1,6 +1,4 @@
 import * as ts from "typescript"
-import * as gcn from "./generatedCastNode"
-
 
 let kindCache: { [key: number]: string }
 
@@ -20,111 +18,81 @@ function getKindCache() {
     return kindCache
 }
 
-export type TypedNode =
-    | gcn.GeneratedTypedNode
-
-    | gcn.GeneratedUncastableNode
-    | ["Constructor", ts.ConstructorDeclaration]
-    | ["NullKeyword", ts.NullLiteral]
-
-
-export function castNode(node: ts.Node): TypedNode {
-    const cache = getKindCache()
-    const sk = cache[node.kind]
-    if (sk === undefined) {
-        throw new Error("XXXX")
-    }
-    switch (node.kind) {
-        case ts.SyntaxKind.Constructor: return ["Constructor", node as ts.ConstructorDeclaration]
-        case ts.SyntaxKind.NullKeyword: return ["NullKeyword", node as ts.NullLiteral]
-    }
-    const castResult = gcn.castNode(node)
-    if (castResult !== null) {
-        return castResult
-    }
-    const castResult2 = gcn.castUnsupportedNode(node)
-    if (castResult2 !== null) {
-        return castResult2
-    }
-    throw new Error("Unknown SyntaxKind: " + node.kind)
+export function getKindName(node: ts.Node) {
+    return getKindCache()[node.kind]
 }
 
-export function castToExpression(node: ts.Node): null | ts.Expression {
-    const castResult = castNode(node)
-    switch (castResult[0]) {
-        case "Identifier": return castResult[1]
-        case "StringLiteral": return castResult[1]
-        case "OmittedExpression": return castResult[1]
-        case "PartiallyEmittedExpression": return castResult[1]
-        //case "UnaryExpression": return castResult[1]
-        //case "UpdateExpression": return castResult[1]
-        case "PrefixUnaryExpression": return castResult[1]
-        case "PostfixUnaryExpression": return castResult[1]
-        //case "LeftHandSideExpression": return castResult[1]
-        // case "MemberExpression": return castResult[1]
-        // case "PrimaryExpression": return castResult[1]
-        // case "NullLiteral": return castResult[1]
-        case "NullKeyword": return castResult[1]
-        // case "BooleanLiteral": return castResult[1]
-        // case "ThisExpression": return castResult[1]
-        // case "SuperExpression": return castResult[1]
-        // case "ImportExpression": return castResult[1]
-        case "DeleteExpression": return castResult[1]
-        case "TypeOfExpression": return castResult[1]
-        case "VoidExpression": return castResult[1]
-        case "AwaitExpression": return castResult[1]
-        case "YieldExpression": return castResult[1]
-        //case "SyntheticExpression": return castResult[1]
-        case "BinaryExpression": return castResult[1]
-        // case "AssignmentExpression<TOperator": return castResult[1]
-        // case "ObjectDestructuringAssignment": return castResult[1]
-        // case "ArrayDestructuringAssignment": return castResult[1]
-        case "ConditionalExpression": return castResult[1]
-        case "FunctionExpression": return castResult[1]
-        case "ArrowFunction": return castResult[1]
-        //case "LiteralExpression": return castResult[1]
-        case "RegularExpressionLiteral": return castResult[1]
-        case "NoSubstitutionTemplateLiteral": return castResult[1]
-        case "NumericLiteral": return castResult[1]
-        //case "BigIntLiteral": return castResult[1]
-        case "TemplateExpression": return castResult[1]
-        case "ParenthesizedExpression": return castResult[1]
-        case "ArrayLiteralExpression": return castResult[1]
-        case "SpreadElement": return castResult[1]
-        //case "ObjectLiteralExpressionBase<T": return castResult[1]
-        case "ObjectLiteralExpression": return castResult[1]
-        case "PropertyAccessExpression": return castResult[1]
-        // "SuperPropertyAccessExpression": return castResult[1]
-        // case "PropertyAccessEntityNameExpression": return castResult[1]
-        case "ElementAccessExpression": return castResult[1]
-        //case "SuperElementAccessExpression": return castResult[1]
-        case "CallExpression": return castResult[1]
-        //case "SuperCall": return castResult[1]
-        //case "ImportCall": return castResult[1]
-        case "NewExpression": return castResult[1]
-        case "TaggedTemplateExpression": return castResult[1]
-        case "AsExpression": return castResult[1]
-        //case "TypeAssertion": return castResult[1]
-        case "NonNullExpression": return castResult[1]
-        case "MetaProperty": return castResult[1]
-        case "JsxElement": return castResult[1]
-        //case "JsxTagNamePropertyAccess": return castResult[1]
-        case "JsxAttributes": return castResult[1]
-        case "JsxOpeningElement": return castResult[1]
-        case "JsxSelfClosingElement": return castResult[1]
-        case "JsxFragment": return castResult[1]
-        case "JsxOpeningFragment": return castResult[1]
-        case "JsxClosingFragment": return castResult[1]
-        case "JsxExpression": return castResult[1]
-        case "CommaListExpression": return castResult[1]
-        case "ClassExpression": return castResult[1]
-        //case "JsonMinusNumericLiteral": return castResult[1]
-        //case "JsonObjectExpressionStatement": return castResult[1]
-        default:
-            return null
-    }
-}
 export function isExpression(n: ts.Node): n is ts.Expression {
-    const castResult = castToExpression(n)
-    return (castResult !== null)
+    switch (n.kind) {
+        case ts.SyntaxKind.Identifier: return true
+        case ts.SyntaxKind.StringLiteral: return true
+        case ts.SyntaxKind.OmittedExpression: return true
+        case ts.SyntaxKind.PartiallyEmittedExpression: return true
+        //case ts.SyntaxKind.UnaryExpression: return true
+        //case ts.SyntaxKind.UpdateExpression: return true
+        case ts.SyntaxKind.PrefixUnaryExpression: return true
+        case ts.SyntaxKind.PostfixUnaryExpression: return true
+        //case ts.SyntaxKind.LeftHandSideExpression: return true
+        // case ts.SyntaxKind.MemberExpression: return true
+        // case ts.SyntaxKind.PrimaryExpression: return true
+        // case ts.SyntaxKind.NullLiteral: return true
+        case ts.SyntaxKind.NullKeyword: return true
+        // case ts.SyntaxKind.BooleanLiteral: return true
+        // case ts.SyntaxKind.ThisExpression: return true
+        // case ts.SyntaxKind.SuperExpression: return true
+        // case ts.SyntaxKind.ImportExpression: return true
+        case ts.SyntaxKind.DeleteExpression: return true
+        case ts.SyntaxKind.TypeOfExpression: return true
+        case ts.SyntaxKind.VoidExpression: return true
+        case ts.SyntaxKind.AwaitExpression: return true
+        case ts.SyntaxKind.YieldExpression: return true
+        //case ts.SyntaxKind.SyntheticExpression: return true
+        case ts.SyntaxKind.BinaryExpression: return true
+        // case ts.SyntaxKind.AssignmentExpression<TOperator: return true
+        // case ts.SyntaxKind.ObjectDestructuringAssignment: return true
+        // case ts.SyntaxKind.ArrayDestructuringAssignment: return true
+        case ts.SyntaxKind.ConditionalExpression: return true
+        case ts.SyntaxKind.FunctionExpression: return true
+        case ts.SyntaxKind.ArrowFunction: return true
+        //case ts.SyntaxKind.LiteralExpression: return true
+        case ts.SyntaxKind.RegularExpressionLiteral: return true
+        case ts.SyntaxKind.NoSubstitutionTemplateLiteral: return true
+        case ts.SyntaxKind.NumericLiteral: return true
+        //case ts.SyntaxKind.BigIntLiteral: return true
+        case ts.SyntaxKind.TemplateExpression: return true
+        case ts.SyntaxKind.ParenthesizedExpression: return true
+        case ts.SyntaxKind.ArrayLiteralExpression: return true
+        case ts.SyntaxKind.SpreadElement: return true
+        //case ts.SyntaxKind.ObjectLiteralExpressionBase<T: return true
+        case ts.SyntaxKind.ObjectLiteralExpression: return true
+        case ts.SyntaxKind.PropertyAccessExpression: return true
+        // ts.SyntaxKind.SuperPropertyAccessExpression: return true
+        // case ts.SyntaxKind.PropertyAccessEntityNameExpression: return true
+        case ts.SyntaxKind.ElementAccessExpression: return true
+        //case ts.SyntaxKind.SuperElementAccessExpression: return true
+        case ts.SyntaxKind.CallExpression: return true
+        //case ts.SyntaxKind.SuperCall: return true
+        //case ts.SyntaxKind.ImportCall: return true
+        case ts.SyntaxKind.NewExpression: return true
+        case ts.SyntaxKind.TaggedTemplateExpression: return true
+        case ts.SyntaxKind.AsExpression: return true
+        //case ts.SyntaxKind.TypeAssertion: return true
+        case ts.SyntaxKind.NonNullExpression: return true
+        case ts.SyntaxKind.MetaProperty: return true
+        case ts.SyntaxKind.JsxElement: return true
+        //case ts.SyntaxKind.JsxTagNamePropertyAccess: return true
+        case ts.SyntaxKind.JsxAttributes: return true
+        case ts.SyntaxKind.JsxOpeningElement: return true
+        case ts.SyntaxKind.JsxSelfClosingElement: return true
+        case ts.SyntaxKind.JsxFragment: return true
+        case ts.SyntaxKind.JsxOpeningFragment: return true
+        case ts.SyntaxKind.JsxClosingFragment: return true
+        case ts.SyntaxKind.JsxExpression: return true
+        case ts.SyntaxKind.CommaListExpression: return true
+        case ts.SyntaxKind.ClassExpression: return true
+        //case ts.SyntaxKind.JsonMinusNumericLiteral: return true
+        //case ts.SyntaxKind.JsonObjectExpressionStatement: return true
+        default:
+            return false
+    }
 }
