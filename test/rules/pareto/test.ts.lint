@@ -4,8 +4,8 @@ import { RootBuilder } from "../../src/builder"
 export function createRoot(rb: RootBuilder) {
     const bla: string = "FOO"
     print(`foo ${true} bar`)
-    ~~~~~~~~~~~~~~~~~~~~~~~~  [expression statements should not be used]
-                 ~~~~         [unsupported expression kind: TrueKeyword]
     throw new Error("SDFS")
     ~~~~~~~~~~~~~~~~~~~~~~~  [unsupported statement kind: ThrowStatement]
+    return 5
+           ~  [magic numbers are not alllowed (only 0 and 1]
 }

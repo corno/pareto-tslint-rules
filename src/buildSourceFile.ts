@@ -506,7 +506,9 @@ class SourceFileBuilder {
                     }
                     case "ArrowFunction": {
                         const $ = value[1]
+                        //tslint:disable-next-line: pareto
                         if (this.tapi.isExpression($.body)) {
+                            //tslint:disable-next-line: pareto
                             const expression = this.processExpression($.body)
                             if (expression === null) {
                                 return notSet({})
@@ -574,6 +576,7 @@ class SourceFileBuilder {
                             expression = this.processExpression($.expression),
                             argumentExpression = this.tapi.castToNumericalLiteral($.argumentExpression)
                         if (expression === null || argumentExpression === null) {
+                            //tslint:disable-next-line: pareto
                             if (argumentExpression === null) {
                                 sideEffect(() => {
                                     return this.reporter.reportFailure({ node: $.argumentExpression, message: "Not a number (0 or 1)" })
@@ -581,7 +584,6 @@ class SourceFileBuilder {
                             }
                             return notSet({})
                         } else {
-                            console.log(">>>>>>>>>>>>>>>>>>>", argumentExpression.text)
                             return set(["ElementAccessExpression", {
                                 expression: expression,
                                 index: ["One", {}],
@@ -604,11 +606,13 @@ class SourceFileBuilder {
                             exp = this.tapi.castToIdentifier($.expression),
                             callSignature = this.processCallSignature({
                                 typeArguments: wrapPossiblyUndefined($.typeArguments),
+                                //tslint:disable-next-line: pareto
                                 args: convertPossiblyNull(undefinedToNull($.arguments), args => wrapArray(args)),
                                 contextNode: $,
                             })
                         if (exp === null || callSignature === null) {
                             sideEffect(() => {
+                                //tslint:disable-next-line: pareto
                                 if (exp === null) {
                                     this.unsupported({ node: $.expression, typeDescription: "class specifier" })
                                 }
@@ -1193,8 +1197,9 @@ class SourceFileBuilder {
                     if (index === null || expression === null) {
                         return notSet({})
                     } else {
+                        //tslint:disable-next-line: pareto
                         if (index.text !== "0") {
-                            this.reporter.reportFailure(index, "unexpected value, expected 0")
+                            this.reporter.reportFailure({ node: index, message: "unexpected value, expected 0" })
                         }
                         return set({
                             kind: ["SwitchStatement", {
@@ -1355,6 +1360,7 @@ class SourceFileBuilder {
                                         })
                                         return notSet({})
                                     } else {
+                                        //tslint:disable-next-line: pareto
                                         if (this.tapi.isSideEffect(identifier.text)) {
                                             const callExpression = this.processExpression(callExpression1)
                                             if (callExpression === null) {

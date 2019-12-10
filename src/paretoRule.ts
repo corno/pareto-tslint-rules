@@ -24,6 +24,7 @@ class Walker extends AbstractWalker<Set<string>> {
         }).processSourceFile(sourceFile)
         const cg = new CodeGenerator()
         const paragraphs = cg.sourceFile(sf)
+        //tslint:disable-next-line: no-console
         fp.serialize(paragraphs, "    ", true, str => console.log(str))
 
     }

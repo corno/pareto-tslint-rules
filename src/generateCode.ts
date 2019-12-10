@@ -111,7 +111,7 @@ export class CodeGenerator {
                     `typedef union union_${pr.path} {`,
                     () => {
                         return $.alternatives.map(m => {
-                            return fp.line([this.typeNode({type: m.type, path: `${pr.path}_${m.name}`}) , ` _${m.name};`])
+                            return fp.line([this.typeNode({ type: m.type, path: `${pr.path}_${m.name}` }), ` _${m.name};`])
                         })
                     },
                     `} union_${pr.path};`,
@@ -153,14 +153,17 @@ export class CodeGenerator {
                     ``,
                     `typedef struct ${pr.path} {`,
                     () => {
+                        //tslint:disable-next-line: pareto
                         let count = 0
                         return [
                             $.members.map(m => {
+                                //tslint:disable-next-line: pareto
                                 count++
                                 return [
                                     fp.line([`const `, this.typeNode({ type: m.type, path: `${pr.path}_${m.name}` }), ` ${m.name};`]),
                                 ]
                             }),
+                            //tslint:disable-next-line: pareto
                             count === 0 ? `char dummyBecauseEmptyStruct;` : [],
                         ]
                     },
