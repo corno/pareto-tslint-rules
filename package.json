@@ -26,10 +26,11 @@
     "typescript": ">=2.4.0-dev || >=2.5.0-dev || >=2.6.0-dev || >=2.7.0-dev || >=2.8.0-dev || >=2.9.0-dev || >=3.0.0-dev || >= 3.1.0-dev || >= 3.2.0-dev",
     "tslint": ">=5.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "fountain-pen": "^2.0.1"
+  },
   "devDependencies": {
     "@types/node": "^12.12.16",
-    "fountain-pen": "^2.0.1",
     "tslint": "5.20.0",
     "typescript": "3.7.2"
   },
