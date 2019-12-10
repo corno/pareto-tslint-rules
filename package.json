@@ -6,9 +6,10 @@
   "scripts": {
     "build": "mkdir .\\dist & rd /s /q .\\dist && tsc",
     "lint": "tslint --project tsconfig.json",
-    "preparePublish": "git diff --exit-code && rd /s /q .\\dist && tsc && npm run lint && npm run test",
-    "pubMin": "npm run preparePublish && npm version minor && git push && npm publish",
-    "pubPatch": "npm run preparePublish && npm version patch && git push && npm publish",
+    "validatePublishReadinessExceptCleanGit": "rd /s /q .\\dist && tsc && npm run lint && npm run test",
+    "validatePublishReadiness": "git diff --exit-code && npm run validatePublishReadinessExceptCleanGit",
+    "pubMin": "npm run validatePublishReadiness && npm version minor && git push && npm publish",
+    "pubPatch": "npm run validatePublishReadiness && npm version patch && git push && npm publish",
     "test": "tslint --test ./test/rules/pareto",
     "u2l": "echo 'don't update to latest, A specific version of typescript is needed for tslint'"
   },
