@@ -15,6 +15,7 @@
         ],
         "comment-format": false,
         "interface-over-type-literal": false,
+        "max-classes-per-file": false,
         "max-line-length": {
             "options": [
                 200
@@ -56,6 +57,7 @@
             "allow-declarations",
             "allow-named-functions"
         ],
+        "pareto": true,
         "prefer-readonly": true,
         "semicolon": false,
         "trailing-comma": [
@@ -77,5 +79,6 @@
         }
     },
     "rulesDirectory": [
+        "./dist"
     ]
 }

@@ -1,7 +1,10 @@
-// tslint:disable: array-type max-classes-per-file
+// tslint:disable: array-type max-classes-per-file pareto
+import * as fp from "fountain-pen"
 import { AbstractWalker, RuleFailure, Rules } from "tslint"
 import { SourceFile } from "typescript"
-import { buildSourceFile } from "./buildSourceFile"
+import { createSourceFileBuilder } from "./buildSourceFile"
+import { CodeGenerator } from "./generateCode"
+import { createTypescriptAPI } from "./utils"
 
 export class Rule extends Rules.AbstractRule {
     public apply(sourceFile: SourceFile): RuleFailure[] {
@@ -11,13 +14,17 @@ export class Rule extends Rules.AbstractRule {
 
 class Walker extends AbstractWalker<Set<string>> {
     public walk(sourceFile: SourceFile) {
-        buildSourceFile(
-            {
-                reportFailure: (node, message) => {
-                    this.addFailureAtNode(node, message)
+        const sf = createSourceFileBuilder({
+            reporter: {
+                reportFailure: p => {
+                    this.addFailureAtNode(p.node, p.message)
                 },
             },
-            sourceFile
-        )
+            typescriptAPI: createTypescriptAPI(),
+        }).processSourceFile(sourceFile)
+        const cg = new CodeGenerator()
+        const paragraphs = cg.sourceFile(sf)
+        fp.serialize(paragraphs, "    ", true, str => console.log(str))
+
     }
 }
