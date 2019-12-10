@@ -28,7 +28,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^12.12.14",
+    "@types/node": "^12.12.16",
     "fountain-pen": "^2.0.0",
     "tslint": "5.20.0",
     "typescript": "3.7.2"
