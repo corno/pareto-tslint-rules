@@ -20,6 +20,6 @@
     "steroid-writer": "0.0.1",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3",
-    "yarn": "^1.19.0"
+    "yarn": "^1.22.0"
   }
 }
